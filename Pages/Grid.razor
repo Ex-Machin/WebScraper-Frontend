@@ -4,7 +4,7 @@
 <Toasts class="p-3" Messages="toastMessages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 
 <Grid TItem="Job" AllowFiltering="true" AllowPaging="true" AllowSorting="true" AllowSelection="true"
-      Class="table table-hover table-bordered table-striped" DataProvider="EmployeesDataProvider" PageSize="5"
+      Class="table table-hover table-bordered table-striped" DataProvider="EmployeesDataProvider" PageSize="20"
       Responsive="true" RowKeySelector="(emp) => emp.Id" SelectedItemsChanged="OnSelectedItemsChanged"
       SelectionMode="GridSelectionMode.Multiple">
 
@@ -16,12 +16,9 @@
                     FilterTextboxWidthUnit="Unit.Percentage" SortKeySelector="item => item.Company">
             @context.Company
         </GridColumn>
-        <GridColumn TItem="Job" HeaderText="Status" PropertyName="Status" SortKeySelector="item => item.Status">
-            @context.Status
-        </GridColumn>
-        <GridColumn TItem="Job" HeaderText="InterviewRound" PropertyName="InterviewRound"
-                    SortKeySelector="item => item.InterviewRound">
-            @context.InterviewRound
+        <GridColumn TItem="Job" HeaderText="Date Published" PropertyName="DatePublished"
+                    SortKeySelector="item => item.DatePublished">
+            @context.DatePublished
         </GridColumn>
         <GridColumn TItem="Job" HeaderText="Title" PropertyName="Title" SortKeySelector="item => item.Title">
             @context.Title
@@ -30,13 +27,11 @@
                     SortKeySelector="item => item.Department">
             @context.Department
         </GridColumn>
-                <GridColumn TItem="Job" HeaderText="Region" PropertyName="Region"
-                    SortKeySelector="item => item.Region">
-            @context.Region
-        </GridColumn>
-                <GridColumn TItem="Job" HeaderText="City" PropertyName="City"
-                    SortKeySelector="item => item.City">
+        <GridColumn TItem="Job" HeaderText="City" PropertyName="City" SortKeySelector="item => item.City">
             @context.City
+        </GridColumn>
+        <GridColumn TItem="Job" HeaderText="Link" PropertyName="Link" SortKeySelector="item => item.Link">
+            @context.Link
         </GridColumn>
 
     </GridColumns>
@@ -70,9 +65,9 @@
     {
         if (employees is null) // pull employees only one time for client-side filtering, sorting, and paging
             try
-                {
-                    employees = await HttpClient.GetFromJsonAsync<List<Job>>("http://localhost:5235/api/jobs");
-                }
+            {
+                employees = await HttpClient.GetFromJsonAsync<List<Job>>("http://localhost:5235/api/jobs");
+            }
             catch (Exception ex)
             {
                 string errorMessage = ex.ToString();
@@ -82,33 +77,11 @@
         return await Task.FromResult(request.ApplyTo(employees));
     }
 
-    private IEnumerable<Job> GetEmployees()
-    {
-        return new List<Job>
-        {
-            new Job { Id = 107, Company = "Amazon", Status = 0, InterviewRound = 0, Title = "SD", Department = "Development",
-City="Gdańsk", Region="Pomorskie"},
-            new Job { Id = 103, Company = "Google", Status = 0, InterviewRound = 0, Title = "SD", Department = "Development",
-City="Gdańsk", Region="Pomorskie"},
-            new Job { Id = 106, Company = "Cyvia", Status = 0, InterviewRound = 0, Title = "SD", Department = "Development",
-City="Gdańsk", Region="Pomorskie"},
-            new Job { Id = 104, Company = "Epam", Status = 0, InterviewRound = 0, Title = "SD", Department = "Development",
-City="Gdańsk", Region="Pomorskie"},
-            new Job { Id = 104, Company = "Capgemini", Status = 0, InterviewRound = 0, Title = "SD", Department = "Development",
-City="Gdańsk", Region="Pomorskie"},
-        };
-    }
-
     private Task OnSelectedItemsChanged(HashSet<Job> employees)
     {
         selectedEmployees = employees is not null && employees.Any() ? employees : new();
         return Task.CompletedTask;
     }
-
-    @* protected override async Task OnInitializedAsync()
-    {
-
-    } *@
 
     private void ShowMessage(ToastType toastType, string title, string messageText) =>
 toastMessages.Add(CreateToastMessage(toastType, title, messageText));
